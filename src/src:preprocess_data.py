@@ -35,11 +35,8 @@ def split_train_test(df, ratio=0.25):
 # Load Twitter Sentiment Analysis dataset
 dataset = load_dataset("carblacac/twitter-sentiment-analysis")
 
-# Combine the 'train' and 'test' splits
-combined_data = pd.concat([pd.DataFrame(dataset['train']), pd.DataFrame(dataset['test'])], ignore_index=True)
-
-# Convert the combined dataset to a Pandas DataFrame
-df = pd.DataFrame(combined_data)
+# Convert the dataset to a Pandas DataFrame
+df = pd.DataFrame(dataset['train'])
 
 # Split the data into training and test sets
 training_df, test_df = split_train_test(df, ratio=0.8)
@@ -65,3 +62,4 @@ print(training_df.head())
 
 print("\nPreprocessed Test DataFrame:")
 print(test_df.head())
+
