@@ -12,57 +12,56 @@ def drop_duplicates(dataframe):
 def make_lower_case(dataframe):
     return dataframe.applymap(lambda x: x.lower() if isinstance(x, str) else x)
 
-def remove_special_characters(dataframe):
+def remove_special_characters(dataframe, keep_numbers=False):
     def remove_special_chars(text):
-        x = re.sub(r'[^a-zA-Z\s]', '', text) if isinstance(text, str) else text
-        x = str(x)
-        return x.strip()
+        if isinstance(text, str):
+            if keep_numbers:
+                # Remove non-alphabetic characters (keeping numbers)
+                return re.sub(r'[^a-zA-Z0-9\s]', '', text)
+            else:
+                # Remove non-alphabetic characters (excluding numbers)
+                return re.sub(r'[^a-zA-Z\s]', '', text)
+        return text
+
+    # Apply the function to all string columns
     return dataframe.applymap(remove_special_chars)
+
+def split_train_test(df, ratio=0.25):
+    # creates two dataframes, one to be used as training data, and the other to be used for classification.
+    training_df = df.sample(frac=ratio, random_state=17)
+    leftover_df = df.drop(training_df.index)
+    return training_df, leftover_df
 
 # Load Twitter Sentiment Analysis dataset
 dataset = load_dataset("carblacac/twitter-sentiment-analysis")
 
-# Assuming the dataset has a 'train' split
-train_data = dataset['train']
+# Combine the 'train' and 'test' splits
+combined_data = pd.concat([pd.DataFrame(dataset['train']), pd.DataFrame(dataset['test'])], ignore_index=True)
 
-# Convert the dataset to a Pandas DataFrame
-df = pd.DataFrame(train_data)
+# Convert the combined dataset to a Pandas DataFrame
+df = pd.DataFrame(combined_data)
 
-# Display the original DataFrame
-print("Original DataFrame:")
-print(df.head())
+# Split the data into training and test sets
+training_df, test_df = split_train_test(df, ratio=0.8)
 
-# Apply preprocessing functions
-df = drop_na(df)
-df = drop_duplicates(df)
-df = make_lower_case(df)
-df = remove_special_characters(df)
+# Display the shapes of the training and test sets
+print("Training set shape:", training_df.shape)
+print("Test set shape:", test_df.shape)
 
-# Display the preprocessed DataFrame
-print("\nPreprocessed DataFrame:")
-print(df.head())
+# Apply preprocessing functions to training and test sets
+training_df = drop_na(training_df)
+training_df = drop_duplicates(training_df)
+training_df = make_lower_case(training_df)
+training_df = remove_special_characters(training_df, keep_numbers=True)
 
-# Testing Section
-def test_preprocessing_functions():
-    # Test drop_na function
-    df_na = drop_na(df.copy())
-    print("\nDataFrame after drop_na:")
-    print(df_na.head())
+test_df = drop_na(test_df)
+test_df = drop_duplicates(test_df)
+test_df = make_lower_case(test_df)
+test_df = remove_special_characters(test_df, keep_numbers=True)
 
-    # Test drop_duplicates function
-    df_duplicates = drop_duplicates(df.copy())
-    print("\nDataFrame after drop_duplicates:")
-    print(df_duplicates.head())
+# Display the preprocessed DataFrames
+print("\nPreprocessed Training DataFrame:")
+print(training_df.head())
 
-    # Test make_lower_case function
-    df_lower = make_lower_case(df.copy())
-    print("\nDataFrame after make_lower_case:")
-    print(df_lower.head())
-
-    # Test remove_special_characters function
-    df_no_special_chars = remove_special_characters(df.copy())
-    print("\nDataFrame after remove_special_characters:")
-    print(df_no_special_chars.head())
-
-# Run the testing section
-test_preprocessing_functions()
+print("\nPreprocessed Test DataFrame:")
+print(test_df.head())
