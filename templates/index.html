@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Sentiment Analysis</title>
+  <style>
+    textarea {
+      width: 400px;
+      /* Width of the text area */
+      height: 150px;
+      /* Height of the text area */
+      margin-bottom: 10px;
+      /* Spacing below the text area */
+    }
+
+    input[type="password"],
+    button {
+      margin-top: 10px;
+      /* Spacing above the key input and button */
+    }
+  </style>
+</head>
+
+<body style="text-align: center; padding-top: 50px; background-color: black">
+  <h1 style="color: white">Math166: Sentiment Analysis Demo</h1>
+  <form method="post">
+    <textarea style="background-color: gray" name="tweet" placeholder="Enter a tweet" required></textarea><br />
+    <input style="background-color: gray" name="key" placeholder="Enter key" required /><br />
+    <button type="submit">Analyze Sentiment</button>
+  </form>
+
+  {% if message %}
+  <h3 style="color: white">{{ message }}</h3>
+  {% endif %}
+</body>
+
+</html>

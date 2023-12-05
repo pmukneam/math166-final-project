@@ -1,0 +1,18 @@
+reg_para: 0.01
+Training time: 0.2313145770021947
+{'accuracy': 0.641595132927744, 'precision': 0.641624704882908, 'recall': 0.6415892740952793, 'f1': 0.6415704861687725}
+reg_para: 0.1
+Training time: 0.3933814079973672
+{'accuracy': 0.6426368864072006, 'precision': 0.6426460056134333, 'recall': 0.6426334348132661, 'f1': 0.6426276502671209}
+reg_para: 1
+Training time: 2.195363314000133
+{'accuracy': 0.6429702475206267, 'precision': 0.6429779142949323, 'recall': 0.6429670461560517, 'f1': 0.6429621905122713}
+reg_para: 10
+Training time: 26.2009231919983
+{'accuracy': 0.6431369280773398, 'precision': 0.6431453337123167, 'recall': 0.643133601785632, 'f1': 0.643128299761649}
+/home/shieru/.virtualenvs/math166-final/lib/python3.11/site-packages/sklearn/svm/_base.py:1250: ConvergenceWarning: Liblinear 
+failed to converge, increase the number of iterations.
+  warnings.warn(
+reg_para: 100
+Training time: 159.57971512400036
+{'accuracy': 0.6431369280773398, 'precision': 0.6431453337123167, 'recall': 0.643133601785632, 'f1': 0.643128299761649}

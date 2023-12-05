@@ -1,7 +1,12 @@
 import re
+import time
 
+import joblib
+import numpy as np
 import pandas as pd
 from datasets import load_dataset
+from sklearn.decomposition import NMF
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from src.model import predict_linear_svm, train_linear_svm
 from src.preprocess_data import (drop_duplicates, drop_na, make_lower_case,
@@ -12,11 +17,15 @@ from src.vectorization import (vectorize_data, vectorize_leftover_df,
 
 # Load Twitter Sentiment Analysis dataset
 dataset = load_dataset("carblacac/twitter-sentiment-analysis")
+# df = pd.read_csv("dataset/raw/twitter-sentiment-analysis.csv",
+#                  usecols=['Sentiment', 'SentimentText'])
 
 # Convert the dataset to a Pandas DataFrame
 df = pd.DataFrame(dataset['train'])
 
-
+# Load the dataset
+# df = pd.read_csv('dataset/raw/twitter-sentiment-analysis.csv')
+# df = df.iloc[:50000]
 df = drop_na(df)
 df = drop_duplicates(df)
 df = make_lower_case(df)
@@ -49,13 +58,21 @@ df = remove_special_characters(df, keep_numbers=True)
 
 # splite the dataset into training and test sets
 training_df, testing_df = split_train_test(df, ratio=0.8)
-y_train = training_df['feeling']
-y_test = testing_df['feeling']
+y_train = np.asarray(training_df['feeling'])
+y_test = np.asarray(testing_df['feeling'])
 # TF-IDF vectorization
-x_train = vectorize_training_df(training_df)
-x_test = vectorize_leftover_df(testing_df)
+# x_train = vectorize_training_df(training_df)
+# x_test = vectorize_leftover_df(testing_df)
+tfidf_vectorizer = TfidfVectorizer(max_features=1000)
+x_train, x_test = vectorize_data(training_df, testing_df, tfidf_vectorizer)
 # vectorized_training_df = vectorize_data(training_df)
 # vectorized_leftover_df = vectorize_data(leftover_df)
+
+# NMF
+nmf_model = NMF(n_components=50, init='random', random_state=0, max_iter=1000)
+x_train_nmf = nmf_model.fit_transform(x_train)
+x_test_nmf = nmf_model.transform(x_test)
+
 
 # # print dimension/size
 # print("x_train.shape:", x_train.shape)
@@ -70,10 +87,22 @@ x_test = vectorize_leftover_df(testing_df)
 # print("y_test.head():", y_test[0:5])
 #
 
-# train the model
-svm_model = train_linear_svm(x_train, y_train, reg_para=0.5)
-# predict the labels
-y_pred = predict_linear_svm(x_test, svm_model)
-# evaluate the model
-scores = evaluate_score(y_test, y_pred)
-print(scores)
+reg_arr = [0.01, 0.1, 1, 10, 100]
+
+for reg_para in reg_arr:
+    # train the model
+    tic = time.perf_counter()
+    # svm_model = train_linear_svm(x_train, y_train, reg_para=reg_para)
+    svm_model = train_linear_svm(x_train_nmf, y_train, reg_para=reg_para)
+    # predict the labels
+    toc = time.perf_counter()
+    # save the model
+    # joblib.dump(svm_model, 'models/svm_model_reg_' + str(reg_para) + '.pkl')
+
+    # y_pred = predict_linear_svm(x_test, svm_model)
+    y_pred = predict_linear_svm(x_test_nmf, svm_model)
+    # evaluate the model
+    scores = evaluate_score(y_test, y_pred)
+    print("reg_para:", reg_para)
+    print("Training time:", toc - tic)
+    print(scores)

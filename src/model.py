@@ -1,5 +1,7 @@
 # This file contains the functions for training and testing the linear SVM model.
-from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
+
+# from sklearn.svm import SVC
 
 
 def train_linear_svm(x_train, y_train, reg_para):
@@ -12,7 +14,8 @@ def train_linear_svm(x_train, y_train, reg_para):
     :param max_iter: maximum number of iterations
     :return: trained linear SVM model
     """
-    svm_model = SVC(C=reg_para, kernel='linear')
+    svm_model = LinearSVC(C=reg_para, dual=True, max_iter=10000)
+    # svm_model = SVC(C=reg_para, kernel="linear")
     svm_model.fit(x_train, y_train)
     return svm_model
 
